@@ -14,7 +14,7 @@ export default function BoardDetail() {
     /* 게시판 상세 조회 결과를 반영 */
     useEffect(() => {
         axios
-            .get(`http://localhost:8080/api/board/${boardIdx}`)
+            .get(`http://localhost:8080/api/v2/board/${boardIdx}`)
             .then(res => {
                 res && res.data && setBoard(res.data)
                 res && res.data && setTitle(res.data.title);
@@ -34,7 +34,7 @@ export default function BoardDetail() {
     const updateButtonClick = e => {
         e.preventDefault();
         axios
-            .put(`http://localhost:8080/api/board/${boardIdx}`, {title, contents})
+            .put(`http://localhost:8080/api/v2/board/${boardIdx}`, {title, contents})
             .then(res => res && res.status === 200 && navigate("/list"))
             .error(err => console.log(err));
     };
@@ -54,7 +54,7 @@ export default function BoardDetail() {
         const {boardIdx, idx, originalFileName} = file;
 
         axios({
-            url: `http://localhost:8080/api/board/file?boardIdx=${boardIdx}&idx=${idx}`,
+            url: `http://localhost:8080/api/v2/board/file?boardIdx=${boardIdx}&idx=${idx}`,
             method: 'GET',
             responseType: 'blob'        
         })
