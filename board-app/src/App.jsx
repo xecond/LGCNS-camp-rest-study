@@ -1,29 +1,53 @@
-import { createBrowserRouter, RouterProvider, Outlet, Link } from "react-router-dom"
+import { createBrowserRouter, RouterProvider, Outlet, Link, useNavigate } from "react-router-dom"
 import './App.css';
 import BoardList from './board/BoardList';
 import BoardDetail from './board/BoardDetail';
 import BoardWrite from './board/BoardWrite';
+import Login from "./user/Login";
+import { jwtDecode } from 'jwt-decode';
 
+const Layout = () => {
+  const navigate = useNavigate();
 
-const Layout = () => (
-  <>
-    <nav>
-      <Link to="/list">게시판 목록</Link>
-      :
-      <Link to="/detail/8">게시판 상세</Link>
-      :
-      <Link to="/write">게시판 글쓰기</Link>
-    </nav>
-    <Outlet />
-  </>
-)
+  let decoded = "";
+  const token = sessionStorage.getItem("token");
+  if (token) {
+    decoded = jwtDecode(token);
+    console.log(decoded.name);
+  } else {
+    navigate("/");
+  }
+
+  const doLogout = e => {
+    e.preventDefault();
+
+    sessionStorage.removeItem("token");
+    navigate("/");
+  };
+
+  return (
+    <>
+      <nav>
+        {
+          token && (
+            <>
+              "{decoded.name}"님 반갑습니다.
+              [<a onClick={doLogout}>로그아웃</a>]
+            </>
+          )
+        }
+      </nav>
+      <Outlet />
+    </>
+  )
+};
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <Layout />,
     children: [
-      { path: "", element: <BoardList /> },
+      { path: "", element: <Login /> },
       { path: "list", element: <BoardList /> },
       { path: "detail/:boardIdx", element: <BoardDetail /> },
       { path: "write", element: <BoardWrite /> },

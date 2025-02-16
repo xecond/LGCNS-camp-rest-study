@@ -1,20 +1,36 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function BoardList() {
 
     const [datas, setDatas] = useState([]);
 
+    const navigate = useNavigate();
+
     /* 게시판 목록 데이터 조회 기능 */
     useEffect(() => {
+        const token = sessionStorage.getItem("token");
+
         axios
-        .get("http://localhost:8080/api/v2/board")
+        .get("http://localhost:8080/api/v2/board", {
+            headers: {
+                "Authorization": `Bearer ${token}`
+            }
+        })
         .then(res => {
             console.log(res);
             res && res.data && setDatas(res.data);
         })
-        .catch(err => console.log(err));
+        .catch(err => {
+            console.log(err);
+            if (err.status === 401) {
+                alert("[인증 토큰 누락] 로그인 후 다시 시도해 주세요.");
+            } else if (err.status === 403) {
+                alert("[인증 토큰 오류] 로그인 후 다시 시도해 주세요.");
+            }
+            navigate("/");
+        });
     }, []);
 
     return (
@@ -40,7 +56,7 @@ export default function BoardList() {
                         {/* 조회된 데이터 출력 */}
                         {
                             datas.length > 0 && datas.map(board => (
-                                <tr>
+                                <tr key={board.boardIdx}>
                                     <td>{board.boardIdx}</td>
                                     <td className="title">
                                         <Link to={`/detail/${board.boardIdx}`}>{board.title}</Link>
